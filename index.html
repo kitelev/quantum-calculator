@@ -730,22 +730,9 @@
     </div>
 
     <script>
-        // Анимация телепортации
-        function teleportAnimation(element, callback) {
-            element.style.animation = 'none';
-            element.offsetHeight; // Trigger reflow
-            element.style.animation = 'hyperNeon 0.3s ease-in-out';
-
-            setTimeout(() => {
-                if(callback) callback();
-            }, 100);
-        }
-
         function appendToDisplay(value) {
             const display = document.getElementById('display');
-            teleportAnimation(display, () => {
-                display.value += value;
-            });
+            display.value += value;
 
             // Звук для цифр и операторов
             playSound(200 + Math.random() * 100, 0.1, 'square');

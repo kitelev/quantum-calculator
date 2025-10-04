@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>◤ QUANTUM CALCULATOR ◢</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Orbitron', monospace;
+            background: #000;
+            overflow: hidden;
+            perspective: 2000px;
+        }
+
+        /* МЕГА КОСМИЧЕСКИЙ ФОН */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255, 0, 255, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 0, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 60% 60%, rgba(0, 255, 128, 0.3) 0%, transparent 50%);
+            animation: cosmicMove 15s ease-in-out infinite;
+            filter: blur(100px);
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                repeating-linear-gradient(0deg, transparent 0px, rgba(0, 255, 255, 0.05) 1px, transparent 2px, transparent 40px),
+                repeating-linear-gradient(90deg, transparent 0px, rgba(255, 0, 255, 0.05) 1px, transparent 2px, transparent 40px);
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+        }
+
+        /* ЗВЁЗДНОЕ ПОЛЕ */
+        .star {
+            position: fixed;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: starTwinkle 3s infinite;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* ЛЕТАЮЩИЕ ЧАСТИЦЫ */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: #0ff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+            animation: particleFloat 10s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* ГОЛОГРАФИЧЕСКИЙ СКАНЕР */
+        .hologram-scanner {
+            position: fixed;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.8), transparent);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            animation: scannerMove 4s linear infinite;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes scannerMove {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* СЛЕДЫ ОТ КУРСОРА */
+        .cursor-trail {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            animation: trailFade 0.8s ease-out forwards;
+        }
+
+        @keyframes trailFade {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* МАТРИЧНЫЙ ДОЖДЬ */
+        .matrix {
+            position: fixed;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            opacity: 0.5;
+            pointer-events: none;
+            animation: matrixFall linear infinite;
+            text-shadow: 0 0 5px #0f0;
+        }
+
+        @keyframes matrixFall {
+            0% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        /* ЭНЕРГЕТИЧЕСКИЕ ВОЛНЫ */
+        .energy-wave {
+            position: fixed;
+            border: 3px solid;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: waveExpand 1.5s ease-out forwards;
+            z-index: 999;
+        }
+
+        @keyframes waveExpand {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+            }
+        }
+
+        /* SHAKE ЭФФЕКТ */
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-3px, 0); }
+            20%, 40%, 60%, 80% { transform: translate(3px, 0); }
+        }
+
+        /* RGB SPLIT */
+        @keyframes rgbSplit {
+            0%, 100% {
+                text-shadow:
+                    -2px 0 0 red,
+                    2px 0 0 cyan,
+                    0 0 10px currentColor;
+            }
+            25% {
+                text-shadow:
+                    2px 0 0 red,
+                    -2px 0 0 cyan,
+                    0 0 10px currentColor;
+            }
+            50% {
+                text-shadow:
+                    0 -2px 0 red,
+                    0 2px 0 cyan,
+                    0 0 10px currentColor;
+            }
+            75% {
+                text-shadow:
+                    0 2px 0 red,
+                    0 -2px 0 cyan,
+                    0 0 10px currentColor;
+            }
+        }
+
+        .error-effect {
+            animation: rgbSplit 0.3s ease-in-out 3, shake 0.5s ease-in-out 2 !important;
+        }
+
+        @keyframes cosmicMove {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.5); }
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
+        }
+
+        @keyframes hyperFloat {
+            0%, 100% {
+                transform: translateY(0) rotateX(10deg) rotateY(-5deg) rotateZ(0deg);
+            }
+            25% {
+                transform: translateY(-30px) rotateX(15deg) rotateY(5deg) rotateZ(2deg);
+            }
+            50% {
+                transform: translateY(-50px) rotateX(5deg) rotateY(0deg) rotateZ(-2deg);
+            }
+            75% {
+                transform: translateY(-30px) rotateX(15deg) rotateY(-5deg) rotateZ(1deg);
+            }
+        }
+
+        @keyframes megaGlitch {
+            0%, 80%, 100% {
+                transform: translate(0);
+                filter: hue-rotate(0deg);
+            }
+            81% {
+                transform: translate(-5px, 5px) skew(2deg);
+                filter: hue-rotate(90deg);
+            }
+            82% {
+                transform: translate(5px, -5px) skew(-2deg);
+                filter: hue-rotate(180deg);
+            }
+            83% {
+                transform: translate(-3px, -3px) skew(1deg);
+                filter: hue-rotate(270deg);
+            }
+            84% {
+                transform: translate(3px, 3px) skew(-1deg);
+                filter: hue-rotate(360deg);
+            }
+        }
+
+        @keyframes hyperNeon {
+            0%, 100% {
+                text-shadow:
+                    0 0 10px currentColor,
+                    0 0 20px currentColor,
+                    0 0 40px currentColor,
+                    0 0 80px currentColor,
+                    0 0 120px currentColor;
+            }
+            50% {
+                text-shadow:
+                    0 0 5px currentColor,
+                    0 0 10px currentColor,
+                    0 0 20px currentColor,
+                    0 0 40px currentColor,
+                    0 0 60px currentColor;
+            }
+        }
+
+        @keyframes rainbowBorder {
+            0% {
+                background-position: 0% 50%;
+                filter: hue-rotate(0deg);
+            }
+            50% {
+                background-position: 100% 50%;
+                filter: hue-rotate(180deg);
+            }
+            100% {
+                background-position: 0% 50%;
+                filter: hue-rotate(360deg);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: brightness(1) saturate(1);
+                transform: scale(1);
+            }
+            50% {
+                filter: brightness(1.5) saturate(2);
+                transform: scale(1.02);
+            }
+        }
+
+        /* КАЛЬКУЛЯТОР БУДУЩЕГО */
+        .calculator {
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(135deg,
+                rgba(10, 0, 30, 0.9),
+                rgba(30, 0, 60, 0.9),
+                rgba(10, 0, 30, 0.9));
+            padding: 50px;
+            border-radius: 40px;
+            box-shadow:
+                0 0 100px rgba(0, 255, 255, 0.8),
+                0 0 200px rgba(255, 0, 255, 0.6),
+                0 0 300px rgba(255, 255, 0, 0.4),
+                inset 0 0 100px rgba(0, 255, 255, 0.2),
+                0 50px 100px rgba(0, 0, 0, 0.9);
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            backdrop-filter: blur(30px) saturate(200%);
+            animation: hyperFloat 8s ease-in-out infinite, pulseGlow 3s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 40px;
+            background: linear-gradient(45deg,
+                #0ff, #f0f, #ff0, #0f0, #00f, #f00, #0ff);
+            background-size: 800% 800%;
+            z-index: -1;
+            animation: rainbowBorder 6s linear infinite;
+        }
+
+        .calculator::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 40px;
+            background: linear-gradient(135deg,
+                rgba(10, 0, 30, 0.95),
+                rgba(30, 0, 60, 0.95));
+            z-index: -1;
+        }
+
+        /* ДИСПЛЕЙ КВАНТОВЫЙ */
+        #display {
+            width: 100%;
+            height: 120px;
+            font-size: 56px;
+            font-weight: 900;
+            text-align: right;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: none;
+            border-radius: 25px;
+            background:
+                linear-gradient(135deg,
+                    rgba(0, 0, 0, 0.95),
+                    rgba(20, 0, 50, 0.95)),
+                repeating-linear-gradient(90deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(0, 255, 255, 0.03) 10px,
+                    rgba(0, 255, 255, 0.03) 20px);
+            color: #0ff;
+            box-sizing: border-box;
+            box-shadow:
+                inset 0 0 50px rgba(0, 255, 255, 0.5),
+                inset 0 0 100px rgba(255, 0, 255, 0.3),
+                0 0 60px rgba(0, 255, 255, 0.6),
+                0 10px 40px rgba(0, 0, 0, 0.8);
+            animation: hyperNeon 1.5s ease-in-out infinite, megaGlitch 4s infinite;
+            letter-spacing: 5px;
+            font-family: 'Orbitron', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg,
+                transparent,
+                rgba(0, 255, 255, 0.1),
+                transparent);
+            animation: displayShine 3s linear infinite;
+        }
+
+        @keyframes displayShine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* КНОПКИ ГИПЕРПРОСТРАНСТВА */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        button {
+            padding: 35px;
+            font-size: 28px;
+            font-weight: 900;
+            border: none;
+            border-radius: 20px;
+            background:
+                linear-gradient(135deg,
+                    rgba(0, 50, 100, 0.6),
+                    rgba(0, 20, 60, 0.8)),
+                repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(0, 255, 255, 0.05) 10px,
+                    rgba(0, 255, 255, 0.05) 20px);
+            color: #0ff;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 3px solid rgba(0, 255, 255, 0.5);
+            box-shadow:
+                0 0 30px rgba(0, 255, 255, 0.6),
+                inset 0 0 30px rgba(0, 255, 255, 0.2),
+                0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 0 20px currentColor;
+            letter-spacing: 3px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle,
+                rgba(0, 255, 255, 0.8),
+                rgba(0, 255, 255, 0.4),
+                transparent);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: conic-gradient(
+                from 0deg,
+                transparent,
+                rgba(0, 255, 255, 0.4),
+                transparent 30%
+            );
+            animation: buttonRotate 3s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        @keyframes buttonRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        button:hover::after {
+            opacity: 1;
+        }
+
+        button:hover::before {
+            width: 500px;
+            height: 500px;
+        }
+
+        button:hover {
+            background:
+                linear-gradient(135deg,
+                    rgba(0, 255, 255, 0.4),
+                    rgba(0, 200, 255, 0.6));
+            box-shadow:
+                0 0 80px rgba(0, 255, 255, 1),
+                inset 0 0 50px rgba(0, 255, 255, 0.5),
+                0 20px 60px rgba(0, 255, 255, 0.5);
+            transform: scale(1.1) translateZ(30px) rotateZ(5deg);
+            border-color: rgba(0, 255, 255, 1);
+        }
+
+        button:active {
+            transform: scale(0.9) translateZ(5px);
+            box-shadow:
+                0 0 40px rgba(0, 255, 255, 0.8),
+                inset 0 0 30px rgba(0, 255, 255, 0.4);
+        }
+
+        .operator {
+            background:
+                linear-gradient(135deg,
+                    rgba(100, 0, 100, 0.6),
+                    rgba(60, 0, 80, 0.8));
+            color: #f0f;
+            border-color: rgba(255, 0, 255, 0.5);
+            text-shadow: 0 0 20px #f0f;
+            box-shadow:
+                0 0 30px rgba(255, 0, 255, 0.6),
+                inset 0 0 30px rgba(255, 0, 255, 0.2);
+        }
+
+        .operator::before {
+            background: radial-gradient(circle,
+                rgba(255, 0, 255, 0.8),
+                rgba(255, 0, 255, 0.4),
+                transparent);
+        }
+
+        .operator::after {
+            background: conic-gradient(
+                from 0deg,
+                transparent,
+                rgba(255, 0, 255, 0.4),
+                transparent 30%
+            );
+        }
+
+        .operator:hover {
+            background:
+                linear-gradient(135deg,
+                    rgba(255, 0, 255, 0.4),
+                    rgba(200, 0, 200, 0.6));
+            box-shadow:
+                0 0 80px rgba(255, 0, 255, 1),
+                inset 0 0 50px rgba(255, 0, 255, 0.5),
+                0 20px 60px rgba(255, 0, 255, 0.5);
+            border-color: rgba(255, 0, 255, 1);
+        }
+
+        .equals {
+            background:
+                linear-gradient(135deg,
+                    rgba(0, 100, 50, 0.6),
+                    rgba(0, 80, 60, 0.8));
+            color: #0f0;
+            border-color: rgba(0, 255, 0, 0.5);
+            text-shadow: 0 0 20px #0f0;
+            box-shadow:
+                0 0 30px rgba(0, 255, 0, 0.6),
+                inset 0 0 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .equals::before {
+            background: radial-gradient(circle,
+                rgba(0, 255, 0, 0.8),
+                rgba(0, 255, 0, 0.4),
+                transparent);
+        }
+
+        .equals::after {
+            background: conic-gradient(
+                from 0deg,
+                transparent,
+                rgba(0, 255, 0, 0.4),
+                transparent 30%
+            );
+        }
+
+        .equals:hover {
+            background:
+                linear-gradient(135deg,
+                    rgba(0, 255, 0, 0.4),
+                    rgba(0, 200, 100, 0.6));
+            box-shadow:
+                0 0 80px rgba(0, 255, 0, 1),
+                inset 0 0 50px rgba(0, 255, 0, 0.5),
+                0 20px 60px rgba(0, 255, 0, 0.5);
+            border-color: rgba(0, 255, 0, 1);
+        }
+    </style>
+    <script>
+        // Создаём звёзды
+        for(let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 3 + 1;
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            document.body.appendChild(star);
+        }
+
+        // Создаём больше летающих частиц
+        const colors = ['#0ff', '#f0f', '#ff0', '#0f0'];
+        for(let i = 0; i < 150; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.background = color;
+            particle.style.boxShadow = `0 0 10px ${color}, 0 0 20px ${color}`;
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'vw');
+            particle.style.setProperty('--ty', (Math.random() - 0.5) * 200 + 'vh');
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+            document.body.appendChild(particle);
+        }
+
+        // Голографический сканер
+        const scanner = document.createElement('div');
+        scanner.className = 'hologram-scanner';
+        document.body.appendChild(scanner);
+
+        // Матричный дождь
+        function createMatrixRain() {
+            const chars = '01234567890+-*/=';
+            for(let i = 0; i < 20; i++) {
+                const matrix = document.createElement('div');
+                matrix.className = 'matrix';
+                matrix.textContent = chars[Math.floor(Math.random() * chars.length)];
+                matrix.style.left = Math.random() * 100 + '%';
+                matrix.style.top = -20 + 'px';
+                matrix.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                matrix.style.animationDelay = Math.random() * 5 + 's';
+                document.body.appendChild(matrix);
+
+                setTimeout(() => matrix.remove(), 8000);
+            }
+        }
+        setInterval(createMatrixRain, 2000);
+
+        // Следы от курсора
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            if(Math.random() > 0.7) {
+                const trail = document.createElement('div');
+                trail.className = 'cursor-trail';
+                const colors = ['rgba(0, 255, 255, 0.6)', 'rgba(255, 0, 255, 0.6)', 'rgba(255, 255, 0, 0.6)'];
+                trail.style.background = colors[Math.floor(Math.random() * colors.length)];
+                trail.style.left = mouseX + 'px';
+                trail.style.top = mouseY + 'px';
+                trail.style.boxShadow = `0 0 20px ${trail.style.background}`;
+                document.body.appendChild(trail);
+
+                setTimeout(() => trail.remove(), 800);
+            }
+        });
+
+        // Звуковой контекст для эффектов
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(frequency, duration, type = 'sine') {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Энергетические волны
+        function createEnergyWave(x, y, color) {
+            const wave = document.createElement('div');
+            wave.className = 'energy-wave';
+            wave.style.borderColor = color;
+            wave.style.left = (x - 150) + 'px';
+            wave.style.top = (y - 150) + 'px';
+            document.body.appendChild(wave);
+
+            setTimeout(() => wave.remove(), 1500);
+        }
+    </script>
+</head>
+<body>
+    <div class="calculator">
+        <input type="text" id="display" readonly>
+        <div class="buttons">
+            <button onclick="clearDisplay()">C</button>
+            <button onclick="appendToDisplay('/')" class="operator">/</button>
+            <button onclick="appendToDisplay('*')" class="operator">*</button>
+            <button onclick="deleteChar()">←</button>
+
+            <button onclick="appendToDisplay('7')">7</button>
+            <button onclick="appendToDisplay('8')">8</button>
+            <button onclick="appendToDisplay('9')">9</button>
+            <button onclick="appendToDisplay('-')" class="operator">-</button>
+
+            <button onclick="appendToDisplay('4')">4</button>
+            <button onclick="appendToDisplay('5')">5</button>
+            <button onclick="appendToDisplay('6')">6</button>
+            <button onclick="appendToDisplay('+')" class="operator">+</button>
+
+            <button onclick="appendToDisplay('1')">1</button>
+            <button onclick="appendToDisplay('2')">2</button>
+            <button onclick="appendToDisplay('3')">3</button>
+            <button onclick="calculate()" class="equals" style="grid-row: span 2;">=</button>
+
+            <button onclick="appendToDisplay('0')" style="grid-column: span 2;">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+        </div>
+    </div>
+
+    <script>
+        // Анимация телепортации
+        function teleportAnimation(element, callback) {
+            element.style.animation = 'none';
+            element.offsetHeight; // Trigger reflow
+            element.style.animation = 'hyperNeon 0.3s ease-in-out';
+
+            setTimeout(() => {
+                if(callback) callback();
+            }, 100);
+        }
+
+        function appendToDisplay(value) {
+            const display = document.getElementById('display');
+            teleportAnimation(display, () => {
+                display.value += value;
+            });
+
+            // Звук для цифр и операторов
+            playSound(200 + Math.random() * 100, 0.1, 'square');
+
+            // Shake эффект на дисплее
+            display.classList.add('shake');
+            setTimeout(() => display.classList.remove('shake'), 500);
+        }
+
+        function clearDisplay() {
+            const display = document.getElementById('display');
+            display.value = '';
+
+            // Звук очистки
+            playSound(100, 0.2, 'sawtooth');
+
+            // Создать энергетическую волну
+            const rect = display.getBoundingClientRect();
+            createEnergyWave(rect.left + rect.width/2, rect.top + rect.height/2, '#0ff');
+        }
+
+        function deleteChar() {
+            const display = document.getElementById('display');
+            display.value = display.value.slice(0, -1);
+
+            // Звук удаления
+            playSound(150, 0.1, 'triangle');
+        }
+
+        function calculate() {
+            const display = document.getElementById('display');
+            const rect = display.getBoundingClientRect();
+
+            try {
+                const result = eval(display.value);
+                display.value = result;
+
+                // Успешный расчёт - мощные волны
+                playSound(400, 0.3, 'sine');
+                createEnergyWave(rect.left + rect.width/2, rect.top + rect.height/2, '#0f0');
+
+                setTimeout(() => {
+                    createEnergyWave(rect.left + rect.width/2, rect.top + rect.height/2, '#0ff');
+                }, 200);
+
+                setTimeout(() => {
+                    createEnergyWave(rect.left + rect.width/2, rect.top + rect.height/2, '#f0f');
+                }, 400);
+
+            } catch (error) {
+                display.value = 'ОШИБКА';
+
+                // RGB-сплит эффект при ошибке
+                display.classList.add('error-effect');
+                setTimeout(() => display.classList.remove('error-effect'), 1500);
+
+                // Звук ошибки
+                playSound(50, 0.5, 'sawtooth');
+
+                // Красные волны ошибки
+                createEnergyWave(rect.left + rect.width/2, rect.top + rect.height/2, '#f00');
+            }
+        }
+
+        // Добавить shake класс
+        const style = document.createElement('style');
+        style.textContent = `
+            .shake { animation: shake 0.5s ease-in-out !important; }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
